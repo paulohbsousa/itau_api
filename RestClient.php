@@ -31,7 +31,6 @@ class ApiRestClient {
     }
     
     public function post($url, $parameters=array(), $headers=array()){
-        var_dump($parameters);
         return $this->execute($url, 'POST', $parameters, $headers);
     }
     
