@@ -120,7 +120,7 @@ class Boleto implements \Bancos\IBoleto {
 	}	
 
 	public function setEspecie($especie){
-		$reflector = new \ReflectionClass('API\\Bancos\\Itau\\Constants\\Especie');
+		$reflector = new \ReflectionClass('Bancos\\Itau\\Constants\\Especie');
 		foreach ( $reflector->getConstants() as $valor_aceito ) {
 			$constant_values[] = $valor_aceito;
 		}

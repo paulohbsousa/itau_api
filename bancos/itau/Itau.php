@@ -93,11 +93,6 @@ class Itau extends \Bancos\Banco {
 		else
 			throw new ExceptionPackage\ItauException('Falta nosso número.');
 
-		if (isset($dados['numero_contrato_proposta']))
-			$this->object->setNumeroContratoProposta($dados['numero_contrato_proposta']);
-		else
-			throw new ExceptionPackage\ItauException('Falta número contrato proposta.');
-
 		if (isset($dados['data_vencimento']))
 			$this->object->setDataVencimento($dados['data_vencimento']);
 		else
@@ -169,19 +164,24 @@ class Itau extends \Bancos\Banco {
 			throw new \ApiRestClientException('Erro fatal ao ler código de retorno!!');
 		if ( !$r->response )
 				throw new \ApiRestClientException('Resposta vazia do servidor de API!');
-		if ( ExceptionPackage\Http::status($r->info->http_code) ){
-			$response = json_decode($r->response);
-			return array('objeto' => $response, 
-				'status' => 'OK', 
-				'status_message' => ''
-			);
-		} else {
-			 //@TODO passar o argumento correto para o error_code
-			$response = json_decode($r->response);
-			return array('objeto' => $response, 
-				'status' => $response->codigo, 
-				'status_message' => ExceptionPackage\ItauException::error_code($response->codigo)
-			);
+		try{
+			if ( ExceptionPackage\Http::status($r->info->http_code) ){
+				$response = json_decode($r->response);
+				return array('objeto' => $response, 
+					'status' => 'OK', 
+					'status_message' => ''
+				);
+			} else {
+				 //@TODO passar o argumento correto para o error_code
+				$response = json_decode($r->response);
+				var_dump($response);exit;
+				return array('objeto' => $response, 
+					'status' => $response->codigo, 
+					'status_message' => ExceptionPackage\ItauException::error_code($response->codigo)
+				);
+			}
+		} catch(Exception $e){
+			return ['error' => $e->getMessage() , 'response' => $reponse ];
 		}
 	}
 
@@ -270,7 +270,7 @@ class Itau extends \Bancos\Banco {
 				if ($this->moeda->getQuantidade())
 					$json_request['moeda']['codigo_moeda_cnab'] = $this->moeda->getQuantidade();
 				$json_request['nosso_numero'] = $this->object->getNossoNumero();
-				$json_request['numero_contrato_proposta'] = $this->object->getNumeroContratoProposta();
+				// $json_request['numero_contrato_proposta'] = $this->object->getNumeroContratoProposta();
 				$json_request['digito_verificador_nosso_numero'] = $this->object->getDV();
 				if ($this->object->getCodigoBarras())
 					$json_request['codigo_barras'] = $this->object->getCodigoBarras();
@@ -320,10 +320,7 @@ class Itau extends \Bancos\Banco {
 					$json_request['grupo_desconto']['tipo_desconto'] = 0;
 					$json_request['recebimento_divergente']['tipo_autorizacao_recebimento'] = "3";
 				}else{
-					//@TODO - Carteiras Diferentes com descontos baseados na data de Vencimento.
-					
-					//@TODO - Carteiras Diferentes com Recebimentos divergentes.
-					$json_request['recebimento_divergente']['tipo_autorizacao_recebimento'] = $this->recebimento_divergente->getTipoAutorizacao();
+					$json_request['recebimento_divergente']['tipo_autorizacao_recebimento'] = (string) $this->recebimento_divergente->getTipoAutorizacao();
 					if (isset($json_request['recebimento_divergente']['tipo_valor_percentual_recebimento']))
 						$json_request['recebimento_divergente']['tipo_valor_percentual_recebimento'] = $this->recebimento_divergente->getTipoValor();
 					
@@ -332,7 +329,7 @@ class Itau extends \Bancos\Banco {
 					
 					if (isset($json_request['recebimento_divergente']['valor_percentual_maximo_recebimento']))
 						$json_request['recebimento_divergente']['valor_percentual_maximo_recebimento'] = $this->recebimento_divergente->getMaximo();
-
+					$json_request['grupo_desconto']['tipo_desconto'] = 0;
 				}
 
 			break;

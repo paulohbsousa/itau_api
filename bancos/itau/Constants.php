@@ -33,13 +33,11 @@ class TipoCobranca {
 }
 
 class TipoProduto {
-	const CLIENTE = '00002';
-	const CLIENTE175 = '00006';
+	const CLIENTE = '00006';
 }
 
 class SubProduto {
-	const CLIENTE = '00986';
-	const CLIENTE175 = '00008';
+	const CLIENTE = '00008';
 }
 
 class TituloAceite {

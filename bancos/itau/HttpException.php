@@ -9,7 +9,7 @@ class Http extends \Exception {
 				return true;
 			
 			case 400:
-				throw new Http('Conteúdo Mal-Formado.');
+				return false;
 			case 401:
 				throw new Http('O usuário e senha ou token de acesso são inválidos.');
 			case 403:
